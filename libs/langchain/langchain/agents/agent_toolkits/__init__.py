@@ -29,7 +29,9 @@ from langchain.agents.agent_toolkits.file_management.toolkit import (
     FileManagementToolkit,
 )
 from langchain.agents.agent_toolkits.gmail.toolkit import GmailToolkit
+from langchain.agents.agent_toolkits.elasticsearch.toolkit import ElasticsearchDatabaseToolkit
 from langchain.agents.agent_toolkits.jira.toolkit import JiraToolkit
+from langchain.agents.agent_toolkits.elasticsearch.base import create_elasticsearch_agent
 from langchain.agents.agent_toolkits.json.base import create_json_agent
 from langchain.agents.agent_toolkits.json.toolkit import JsonToolkit
 from langchain.agents.agent_toolkits.multion.toolkit import MultionToolkit
@@ -85,6 +87,7 @@ __all__ = [
     "AINetworkToolkit",
     "AmadeusToolkit",
     "AzureCognitiveServicesToolkit",
+    "ElasticsearchDatabaseToolkit",
     "FileManagementToolkit",
     "GmailToolkit",
     "JiraToolkit",
@@ -101,6 +104,7 @@ __all__ = [
     "VectorStoreRouterToolkit",
     "VectorStoreToolkit",
     "ZapierToolkit",
+    "create_elasticsearch_agent",
     "create_json_agent",
     "create_openapi_agent",
     "create_pbi_agent",
