@@ -61,6 +61,10 @@ def _import_duckduckgo_search() -> Any:
 
     return DuckDuckGoSearchAPIWrapper
 
+def _import_elasticsearch_database() -> Any:
+    from langchain.utilities.elasticsearch_database import ElasticsearchDatabase
+
+    return ElasticsearchDatabase
 
 def _import_golden_query() -> Any:
     from langchain.utilities.golden_query import GoldenQueryAPIWrapper
@@ -231,6 +235,8 @@ def __getattr__(name: str) -> Any:
         return _import_brave_search()
     elif name == "DuckDuckGoSearchAPIWrapper":
         return _import_duckduckgo_search()
+    elif name == "ElasticsearchDatabase":
+        return _import_elasticsearch_database()
     elif name == "GoldenQueryAPIWrapper":
         return _import_golden_query()
     elif name == "GoogleScholarAPIWrapper":
@@ -294,6 +300,7 @@ __all__ = [
     "BingSearchAPIWrapper",
     "BraveSearchWrapper",
     "DuckDuckGoSearchAPIWrapper",
+    "ElasticsearchDatabase"
     "GoldenQueryAPIWrapper",
     "GooglePlacesAPIWrapper",
     "GoogleScholarAPIWrapper",
