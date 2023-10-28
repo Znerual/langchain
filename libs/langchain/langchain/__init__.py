@@ -312,6 +312,13 @@ def __getattr__(name: str) -> Any:
         _warn_on_import(name, replacement="langchain.utilities.SQLDatabase")
 
         return SQLDatabase
+    elif name == "ElasticsearchDatabase":
+        from langchain.utilities import ElasticsearchDatabase
+        
+        _warn_on_import(name, replacement="langchain.utilities.ElasticsearchDatabase")
+        
+        return ElasticsearchDatabase
+    
     elif name == "FAISS":
         from langchain.vectorstores import FAISS
 
