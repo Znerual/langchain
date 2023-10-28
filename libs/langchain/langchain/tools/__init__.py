@@ -161,6 +161,31 @@ def _import_edenai_EdenaiTool() -> Any:
 
     return EdenaiTool
 
+def _import_elasticsearch_database_BaseElasticsearchDatabaseTool() -> Any:
+    from langchain.tools.elasticsearch_database import BaseElasticsearchDatabaseTool
+    
+    return BaseElasticsearchDatabaseTool
+
+def _import_elasticsearch_database_QueryElasticsearchDatabaseTool() -> Any:
+    from langchain.tools.elasticsearch_database.tool import QueryElasticsearchDatabaseTool
+    
+    return QueryElasticsearchDatabaseTool
+
+def _import_elasticsearch_database_InfoElasticsearchDatabaseTool() -> Any:
+    from langchain.tools.elasticsearch_database.tool import InfoElasticsearchDatabaseTool
+    
+    return InfoElasticsearchDatabaseTool
+
+def _import_elasticsearch_database_ListElasticsearchDatabaseTool() -> Any:
+    from langchain.tools.elasticsearch_database.tool import ListElasticsearchDatabaseTool
+    
+    return ListElasticsearchDatabaseTool
+
+def _import_elasticsearch_database_QueryElasticsearchCheckerTool() -> Any:
+    from langchain.tools.elasticsearch_database.tool import QueryElasticsearchCheckerTool
+    
+    return QueryElasticsearchCheckerTool
+
 
 def _import_eleven_labs_text2speech() -> Any:
     from langchain.tools.eleven_labs.text2speech import ElevenLabsText2SpeechTool
@@ -705,6 +730,16 @@ def __getattr__(name: str) -> Any:
         return _import_edenai_EdenAiTextToSpeechTool()
     elif name == "EdenaiTool":
         return _import_edenai_EdenaiTool()
+    elif name == "BaseElasticsearchDatabaseTool":
+        return _import_elasticsearch_database_BaseElasticsearchDatabaseTool()
+    elif name == "QueryElasticsearchDatabaseTool":
+        return _import_elasticsearch_database_QueryElasticsearchDatabaseTool()
+    elif name == "InfoElasticsearchDatabaseTool":
+        return _import_elasticsearch_database_InfoElasticsearchDatabaseTool()
+    elif name == "ListElasticsearchDatabaseTool":
+        return _import_elasticsearch_database_ListElasticsearchDatabaseTool()
+    elif name == "QueryElasticsearchCheckerTool":
+        return _import_elasticsearch_database_QueryElasticsearchCheckerTool()
     elif name == "ElevenLabsText2SpeechTool":
         return _import_eleven_labs_text2speech()
     elif name == "CopyFileTool":
@@ -884,6 +919,7 @@ __all__ = [
     "AzureCogsImageAnalysisTool",
     "AzureCogsSpeech2TextTool",
     "AzureCogsText2SpeechTool",
+    "BaseElasticsearchDatabaseTool",
     "BaseGraphQLTool",
     "BaseRequestsTool",
     "BaseSQLDatabaseTool",
@@ -923,6 +959,7 @@ __all__ = [
     "GoogleSerperRun",
     "HumanInputRun",
     "IFTTTWebhook",
+    "InfoElasticsearchDatabaseTool",
     "InfoPowerBITool",
     "InfoSQLDatabaseTool",
     "InfoSparkSQLTool",
@@ -930,6 +967,7 @@ __all__ = [
     "JsonGetValueTool",
     "JsonListKeysTool",
     "ListDirectoryTool",
+    "ListElasticsearchDatabaseTool",
     "ListPowerBITool",
     "ListSQLDatabaseTool",
     "ListSparkSQLTool",
@@ -947,6 +985,8 @@ __all__ = [
     "OpenWeatherMapQueryRun",
     "PubmedQueryRun",
     "QueryCheckerTool",
+    "QueryElasticsearchCheckerTool",
+    "QueryElasticsearchDatabaseTool",
     "QueryPowerBITool",
     "QuerySQLCheckerTool",
     "QuerySQLDataBaseTool",
