@@ -27,9 +27,13 @@ class ElasticsearchDatabaseToolkit(BaseToolkit):
 
     def get_tools(self) -> List[BaseTool]:
         """Get the tools in the toolkit."""
-        list_elasticsearch_database_tool = ListElasticsearchDatabaseTool(db=self.db)
-        info_elasticsearch_database_tool_description = (
+        list_elasticsearch_database_tool_description = (
             "Input is an empty string, output is a comma separated list of indices in the database."
+        )
+        list_elasticsearch_database_tool = ListElasticsearchDatabaseTool(db=self.db, description=list_elasticsearch_database_tool_description)
+        
+        info_elasticsearch_database_tool_description = (
+            "Input to this tool is the name of an Elasticsearch index, and the output is the schema and sample documents from that index."
         )
         info_elasticsearch_database_tool = InfoElasticsearchDatabaseTool(
             db=self.db, description=info_elasticsearch_database_tool_description
