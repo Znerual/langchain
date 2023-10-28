@@ -51,8 +51,6 @@ class InfoElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
     name: str = "elasticsearch_index_schema"
     description: str = """
     Input to this tool is the name of an Elasticsearch index, and the output is the schema and sample documents from that index.
-
-    Example Input: "your_index_name"
     """
 
     def _run(
@@ -61,7 +59,7 @@ class InfoElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Get the schema and sample documents from an Elasticsearch index."""
-        return self.db.elasticsearch_db.get_table_info_no_throw(index_name)
+        return self.db.get_table_info_no_throw(index_name)
 
 
 class ListElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
