@@ -42,6 +42,7 @@ from langchain.agents.agent import (
 )
 from langchain.agents.agent_iterator import AgentExecutorIterator
 from langchain.agents.agent_toolkits import (
+    create_elasticsearch_agent,
     create_json_agent,
     create_openapi_agent,
     create_pbi_agent,
@@ -113,6 +114,7 @@ __all__ = [
     "StructuredChatAgent",
     "Tool",
     "ZeroShotAgent",
+    "create_elasticsearch_agent",
     "create_json_agent",
     "create_openapi_agent",
     "create_pbi_agent",
