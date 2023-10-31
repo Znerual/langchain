@@ -36,14 +36,17 @@ class ElasticsearchDatabaseToolkit(BaseToolkit):
             "Input to this tool is the name of an Elasticsearch index, and the output is the schema and sample documents from that index."
         )
         info_elasticsearch_database_tool = InfoElasticsearchDatabaseTool(
-            db=self.db, description=info_elasticsearch_database_tool_description
+            db=self.db, description=info_elasticsearch_database_tool_description, short_answer=True
         )
         query_elasticsearch_database_tool_description = (
-            "Input to this tool is the Elasticsearch index and a detailed and correct Elasticsearch query, output is a "
-            "result from the database. If the query is not correct, an error message "
-            "will be returned. If an error is returned, rewrite the query, check the "
-            "query, and try again. If you encounter an issue with 'index_not_found_exception' "
+            "Input to this tool is the index of the Elasticsearch database index and a "
+            "detailed and correct Elasticsearch search, output is a result from the database. "
+            "The input has to be in the format of a dict, with the keys index and query."
+            "If the search is not correct, an error message will be returned."
+            "If an error is returned, rewrite the search, check the search, and try again.. If you encounter an issue with 'index_not_found_exception' "
             f", use {list_elasticsearch_database_tool.name} to query the correct index."
+            "If you encounter an issue with 'Input has to be in the format of a dict'"
+            " rewrite the input to be in the format of a dict, with the keys index and query."
             f" If the output is empty, use {info_elasticsearch_database_tool_description} "
             " to check if the field names are correct. If the output is still empty, use fuzzy "
             " to match the query. If the output is still empty, return 'I don't know'."
