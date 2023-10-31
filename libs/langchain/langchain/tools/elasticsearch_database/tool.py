@@ -1,6 +1,7 @@
 # flake8: noqa
 """Tools for interacting with an Elasticsearch database."""
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
+import ast
 
 from langchain.pydantic_v1 import BaseModel, Extra, Field, root_validator
 
@@ -24,25 +25,38 @@ class BaseElasticsearchDatabaseTool(BaseModel):
     class Config(BaseTool.Config):
         pass
 
+class QueryElasticsearchDatabaseToolSchema(BaseModel):
+    """Schema for QueryElasticsearchDatabaseTool."""
+
+    query: str = Field(description="The search to run. Consisting of {index, query}.")
 
 class QueryElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
     """Tool for querying an Elasticsearch database."""
 
     name: str = "elasticsearch_db_query"
     description: str = """
-    Input to this tool is the Elasticsearch database index and a detailed and correct Elasticsearch query, output is a result from the database.
-    If the query is not correct, an error message will be returned.
-    If an error is returned, rewrite the query, check the query, and try again.
+    Input to this tool is the index of the Elasticsearch database index and a detailed and correct Elasticsearch search, "
+    "output is a result from the database."
+    The input has to be in the format of a dict, with the keys index and query.
+    If the search is not correct, an error message will be returned.
+    If an error is returned, rewrite the search, check the search, and try again.
     """
-
+    args_schema: Type[QueryElasticsearchDatabaseToolSchema] = QueryElasticsearchDatabaseToolSchema
     def _run(
         self,
-        index: str,
         query: str,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
-        """Execute the query, return the results or an error message."""
-        return self.db.run_no_throw(index, query)
+        """Execute the body on the given index, return the results or an error message."""
+        try:
+            input_dict = ast.literal_eval(query)
+        except SyntaxError as e:
+            return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
+        
+        if not "index" in input_dict or not "query" in input_dict:
+            return "Input has to be in the format of a dict, with the keys index and query." 
+        
+        return self.db.run_no_throw(input_dict["index"], input_dict["query"])
 
 
 class InfoElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
@@ -52,14 +66,15 @@ class InfoElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
     description: str = """
     Input to this tool is the name of an Elasticsearch index, and the output is the schema and sample documents from that index.
     """
-
+   
+    short_answer: bool = True
     def _run(
         self,
         index_name: str,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Get the schema and sample documents from an Elasticsearch index."""
-        return self.db.get_table_info_no_throw(index_name)
+        return self.db.get_table_info_no_throw(index_name, short_answer=self.short_answer)
 
 
 class ListElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
@@ -87,9 +102,9 @@ class QueryElasticsearchCheckerTool(BaseElasticsearchDatabaseTool, BaseTool):
     name: str = "elasticsearch_db_query_checker"
     description: str = """
     Use this tool to double check if your query is correct before executing it.
-    Always use this tool before executing a query with elasticsearch_db_query!
+    Always use this tool before executing a search with elasticsearch_db_query!
     """
-
+    args_schema: Type[QueryElasticsearchDatabaseToolSchema] = QueryElasticsearchDatabaseToolSchema
     @root_validator(pre=True)
     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if "llm_chain" not in values:
@@ -102,32 +117,49 @@ class QueryElasticsearchCheckerTool(BaseElasticsearchDatabaseTool, BaseTool):
 
         if values["llm_chain"].prompt.input_variables != ["index", "query"]:
             raise ValueError(
-                "LLM chain for QueryCheckerTool must have input variables ['query', 'index']"
+                f"LLM chain for QueryCheckerTool must have input variables {'index', 'query'}, prompt was {values['llm_chain'].prompt}"
             )
 
         return values
 
     def _run(
         self,
-        index: str,
         query: str,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Use the LLM to check the query."""
+        
+        try:
+            input_dict = ast.literal_eval(query)
+        except SyntaxError as e:
+            return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
+        
+        if not "index" in input_dict or not "query" in input_dict:
+            return "Input has to be in the format of a dict, with the keys index and query." 
+        
+        
         return self.llm_chain.predict(
-            index=index,
-            query=query,
+            input_dict["index"],
+            input_dict["query"],
             callbacks=run_manager.get_child() if run_manager else None,
         )
 
     async def _arun(
         self,
-        index: str,
         query: str,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> str:
+        
+        try:
+            input_dict = ast.literal_eval(query)
+        except SyntaxError as e:
+            return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
+        
+        if not "index" in input_dict or not "query" in input_dict:
+            return "Input has to be in the format of a dict, with the keys index and query." 
+        
         return await self.llm_chain.apredict(
-            index=index,
-            query=query,
+            input_dict["index"],
+            input_dict["query"],
             callbacks=run_manager.get_child() if run_manager else None,
         )
