@@ -431,7 +431,7 @@ class Chain(RunnableSerializable[Dict[str, Any], Dict[str, Any]], ABC):
                 _input_keys = _input_keys.difference(self.memory.memory_variables)
             if len(_input_keys) != 1:
                 raise ValueError(
-                    f"A single string input was passed in, but this chain expects "
+                    f"A single string input was passed in {inputs}, but this chain expects "
                     f"multiple inputs ({_input_keys}). When a chain expects "
                     f"multiple inputs, please call it by passing in a dictionary, "
                     "eg `chain({'foo': 1, 'bar': 2})`"
