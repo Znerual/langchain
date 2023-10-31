@@ -14,8 +14,14 @@ class ElasticsearchDatabase:
             return f"Error: {e}"
         
     def get_usable_table_names(self):
+        import warnings
         try:
-            indices = self.client.indices.get_alias().keys()
+            
+            # ignore the warning that says that we access the system index
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                indices = self.client.indices.get_alias().keys()
+            indices = [ind for ind in indices if not ind.startswith(".security")] # remove the system index
             return sorted(indices)
         except Exception as e:
             return f"Error: {e}"
@@ -37,20 +43,43 @@ class ElasticsearchDatabase:
             sample_docs = response['hits']['hits']
 
             # Extract and format the sample document fields
+            MAX_LENGTH = 512
+            max_field_length = MAX_LENGTH // len(sample_docs)
             sample_rows = []
             for doc in sample_docs:
                 doc_source = doc['_source']
-                sample_row = [str(doc_source.get(field, '')[:100]) for field in doc_source]
+                sample_row = ", ".join([str(doc_source.get(field, ''))[:max_field_length] for field in doc_source])
                 sample_rows.append(sample_row)
 
-            return sample_rows
+            return ', '.join(sample_rows)
         except Exception as e:
             return f"Error: {e}"
 
-    def get_table_info(self, index_name):
+    def _simplify_mapping(self, mapping):
+        if 'properties' in mapping:
+            return self._simplify_mapping(mapping['properties'])
+
+        if 'type' in mapping:
+            return mapping['type']
+
+        # Handle cases where 'properties' or 'type' is missing
+        if isinstance(mapping, dict):
+            return {key: self._simplify_mapping(value) for key, value in mapping.items()}
+
+        return mapping
+
+    def get_table_info(self, index_name,  short_answer:bool=False):
         try:
-            mapping = self.client.indices.get_mapping(index=index_name)
-            sample_rows = self._get_sample_documents(index_name)
+            mapping = self.client.indices.get_mapping(index=index_name)[index_name]['mappings']
+            
+            # Simplify the mapping information
+            mapping = self._simplify_mapping(mapping)
+            
+            if short_answer:
+                return str(mapping)
+            
+            # Get sample documents from the index
+            sample_rows = self._get_sample_documents(index_name, size=1)
             # Process and format the mapping information as needed
             return str(mapping) + "\n" + str(sample_rows)
         except Exception as e:
@@ -81,7 +110,7 @@ class ElasticsearchDatabase:
             formatted_result = "\n".join([str(row) for row in result])
             return formatted_result
         
-    def get_table_info_no_throw(self, table_names: Optional[List[str]] = None) -> str:
+    def get_table_info_no_throw(self, table_names: Optional[List[str]] = None, short_answer:bool = False) -> str:
         """Get information about specified tables.
 
         Follows best practices as specified in: Rajkumar et al, 2022
@@ -92,7 +121,7 @@ class ElasticsearchDatabase:
         demonstrated in the paper.
         """
         try:
-            return self.get_table_info(table_names)
+            return self.get_table_info(table_names, short_answer=short_answer)
         except ValueError as e:
             """Format the error message"""
             return f"Error: {e}"
