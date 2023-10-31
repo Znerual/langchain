@@ -1,15 +1,11 @@
 # flake8: noqa
 
 ELASTICSEARCH_PREFIX = """You are an agent designed to interact with an Elasticsearch database.
-Given an input question, create a syntactically correct query to run, then look at the results of the query and return the answer.
-Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most {top_k} results.
-You can order the results by a relevant column to return the most interesting examples in the database.
-Never query for all the columns from a specific table, only ask for the relevant columns given the question.
+Given an input question, create a syntactically correct Elasticsearch search to run, then look at the results of the search and return the answer.
+You can use fuzzy search.
 You have access to tools for interacting with the database.
 Only use the below tools. Only use the information returned by the below tools to construct your final answer.
-You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
-
-DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
+You MUST double check your search before executing it. If you get an error while executing a search, rewrite the search and try again.
 
 If the question does not seem related to the database, just return "I don't know" as the answer.
 """
@@ -17,7 +13,7 @@ If the question does not seem related to the database, just return "I don't know
 ELASTICSEARCH_SUFFIX = """Begin!
 
 Question: {input}
-Thought: I should look at the tables in the database to see what I can query.  Then I should query the schema of the most relevant tables.
+Thought: I should look at the indices in the Elasticsearch database to see what I can search for.  I should also look at the schema of the best fitting index to see what fields I can user in the search.
 {agent_scratchpad}"""
 
-ELASTICSEARCH_FUNCTIONS_SUFFIX = """I should look at the tables in the database to see what I can query.  Then I should query the schema of the most relevant tables."""
+ELASTICSEARCH_FUNCTIONS_SUFFIX = """I should look at the indices and their schemes in the database to see what I can search for."""
