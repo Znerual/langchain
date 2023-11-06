@@ -6,12 +6,7 @@ class ElasticsearchDatabase:
     def __init__(self, host, **kwargs):
         self.client = Elasticsearch(host, **kwargs)
 
-    def run(self, index, query):
-        try:
-            result = self.client.search(index=index, body=query)
-            return result
-        except Exception as e:
-            return f"Error: {e}"
+    
         
     def get_usable_table_names(self):
         import warnings
@@ -99,12 +94,15 @@ class ElasticsearchDatabase:
 
             return result
         except Exception as e:
-            return f"Error: {e}"
+            return f"Error: {str(e)}"
 
     def run(self, index:str, query: dict, fetch: Union[Literal["all"], Literal["one"]] = "all") -> str:
         result = self._execute(index, query, fetch)
         if not result:
             return ""
+        elif result.startswith("Error:"):
+            return result
+        
         else:
             # Format the results as a string
             formatted_result = "\n".join([str(row) for row in result])
@@ -124,7 +122,7 @@ class ElasticsearchDatabase:
             return self.get_table_info(table_names, short_answer=short_answer)
         except ValueError as e:
             """Format the error message"""
-            return f"Error: {e}"
+            return f"Error: {str(e)}"
 
     def run_no_throw(
         self,
@@ -143,4 +141,4 @@ class ElasticsearchDatabase:
             return self.run(index, command, fetch)
         except Exception as e:
             """Format the error message"""
-            return f"Error: {e}"
+            return f"Error: {str(e)}"
