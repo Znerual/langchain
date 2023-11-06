@@ -37,7 +37,7 @@ class QueryElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
     description: str = """
     Input to this tool is the index of the Elasticsearch database index and a detailed and correct Elasticsearch search, "
     "output is a result from the database."
-    The input has to be in the format of a dict, with the keys index and query.
+    The input has to be in the format of a dict, with the keys 'index' and 'query'.
     If the search is not correct, an error message will be returned.
     If an error is returned, rewrite the search, check the search, and try again.
     """
@@ -48,15 +48,26 @@ class QueryElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Execute the body on the given index, return the results or an error message."""
-        try:
-            input_dict = ast.literal_eval(query)
-        except SyntaxError as e:
-            return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
+        string_valid  = False
+        counter = 0
+        while not string_valid:
+            try:
+                input_dict = ast.literal_eval(query)
+                string_valid = True
+            except ValueError as e:
+                if counter > 0:
+                    return f"ValueError {str(e)}: Input has to be in the format of a dict, with the keys 'index' and 'query'."
+                sanitized_str = query.replace('index:', '"index":').replace('index :', '"index":').replace('query:', '"query":').replace('query :', '"query":')
+                query = sanitized_str
+                counter += 1
+            except SyntaxError as e:
+                print(f"SyntaxError: {e} for input {query}")
+                return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
         
         if not "index" in input_dict or not "query" in input_dict:
             return "Input has to be in the format of a dict, with the keys index and query." 
         
-        return self.db.run_no_throw(input_dict["index"], input_dict["query"])
+        return self.db.run_no_throw(input_dict["index"], {"query" : input_dict["query"]})
 
 
 class InfoElasticsearchDatabaseTool(BaseElasticsearchDatabaseTool, BaseTool):
@@ -129,18 +140,29 @@ class QueryElasticsearchCheckerTool(BaseElasticsearchDatabaseTool, BaseTool):
     ) -> str:
         """Use the LLM to check the query."""
         
-        try:
-            input_dict = ast.literal_eval(query)
-        except SyntaxError as e:
-            return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
+        string_valid  = False
+        counter = 0
+        while not string_valid:
+            try:
+                input_dict = ast.literal_eval(query)
+                string_valid = True
+            except ValueError as e:
+                if counter > 0:
+                    return f"ValueError {str(e)}: Input has to be in the format of a dict, with the keys 'index' and 'query'."
+                sanitized_str = query.replace('index:', '"index":').replace('index :', '"index":').replace('query:', '"query":').replace('query :', '"query":')
+                query = sanitized_str
+                counter += 1
+            except SyntaxError as e:
+                print(f"SyntaxError: {e} for input {query}")
+                return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
         
         if not "index" in input_dict or not "query" in input_dict:
             return "Input has to be in the format of a dict, with the keys index and query." 
         
         
         return self.llm_chain.predict(
-            input_dict["index"],
-            input_dict["query"],
+            index=input_dict["index"],
+            query=input_dict["query"],
             callbacks=run_manager.get_child() if run_manager else None,
         )
 
@@ -150,16 +172,27 @@ class QueryElasticsearchCheckerTool(BaseElasticsearchDatabaseTool, BaseTool):
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> str:
         
-        try:
-            input_dict = ast.literal_eval(query)
-        except SyntaxError as e:
-            return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
+        string_valid  = False
+        counter = 0
+        while not string_valid:
+            try:
+                input_dict = ast.literal_eval(query)
+                string_valid = True
+            except ValueError as e:
+                if counter > 0:
+                    return f"ValueError {str(e)}: Input has to be in the format of a dict, with the keys 'index' and 'query'."
+                sanitized_str = query.replace('index:', '"index":').replace('index :', '"index":').replace('query:', '"query":').replace('query :', '"query":')
+                query = sanitized_str
+                counter += 1
+            except SyntaxError as e:
+                print(f"SyntaxError: {e} for input {query}")
+                return "SyntaxError: Input has to be in the format of a dict, with the keys index and query." 
         
         if not "index" in input_dict or not "query" in input_dict:
             return "Input has to be in the format of a dict, with the keys index and query." 
         
         return await self.llm_chain.apredict(
-            input_dict["index"],
-            input_dict["query"],
+            index=input_dict["index"],
+            query=input_dict["query"],
             callbacks=run_manager.get_child() if run_manager else None,
         )
