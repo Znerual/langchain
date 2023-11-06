@@ -41,7 +41,7 @@ class ElasticsearchDatabaseToolkit(BaseToolkit):
         query_elasticsearch_database_tool_description = (
             "Input to this tool is the index of the Elasticsearch database index and a "
             "detailed and correct Elasticsearch search, output is a result from the database. "
-            "The input has to be in the format of a dict, with the keys index and query."
+            "The input has to be in the format of a dict, with the keys 'index' and 'query'."
             "If the search is not correct, an error message will be returned."
             "If an error is returned, rewrite the search, check the search, and try again.. If you encounter an issue with 'index_not_found_exception' "
             f", use {list_elasticsearch_database_tool.name} to query the correct index."
